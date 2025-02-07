@@ -1,0 +1,27 @@
+body {
+    /* background-color: lightpink; */
+    display: grid;
+    height: 100vh;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    /* grid-column-gap: 0px;
+    grid-row-gap: 0px; */
+    margin: 0;
+    padding: 0;
+}
+
+#header {
+    background-color: #c43f53;
+    grid-area: 1 / 2 / 2 / 5;
+}
+
+#sidebar {
+    background-color: #ffb6c1;
+    grid-area: 1 / 1 / row-end / 2;
+}
+
+#content {
+    background-color: #f9dde1;
+    grid-area: 2 / 2 / row-end / column-end;
+}
+
