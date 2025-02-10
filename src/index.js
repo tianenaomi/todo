@@ -1,4 +1,5 @@
 import "./style.css";
+import { projectController } from "./project";
 
 let screenController = (function(){
     let addProject = document.createElement('button');

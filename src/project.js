@@ -1,28 +1,60 @@
-let projectController = function(){
+import {toDoController} from './todo';
 
-function createProject(name){
-        // name
-        this.name = name;
-        // todolist - array?
-        let toDoList = [
-            // okay but then how do I trigger the createToDo function and set the result to this array that's what I need do to next
-            // will occur an unknown number of times 
-        ];
+export const projectController = function(){
+    // do I need this?
+    let projectList = [];
+    let completedList = [];
+    let newProject;
 
+    // function createProject(title){
+    //     this.title = title;
+    //     let toDoList = [];
+
+    //     function addToDo(toDo){
+    //         return toDoList.push(toDo);
+    //     }
+
+    //     //add todo separate from creating project?
+    //     return {addToDo}
+    // }
+
+    function createProject(title){
+        this.title = title;
+        let toDoList = [];
+        toDoList.push(getNewToDo());
+        return newProject = {title, toDoList};
     }
 
+    function addProject(newProject){
+        return projectList.push(newProject);
+    }
+
+    function addToDo(){
+        //how to select project to add to
+        //push new toDo to relevant array
+        
+    }
+
+    function completeProject(project){
+        //isolate project from projectList array - findIndexOf() method?
+        //remove from array
+        //add to completedList array
+        completedList.push(project);
+    }
+
+    return {
+        createProject,
+        addProject,
+        getProjectList: function(){
+            return projectList;
+        },
+        getCompletedList: function(){
+            return completedList;
+        },
+    }
 }
 
 
 
-function createToDo (item, priority, due){
-    return {item, priority, due}    
-}
 
-let todo1 = createToDo("feed kitty", "urgent", "now");
-console.log(todo1);
-    
-    // createToDo
-    // - Give it a due date
-    // - Give it a priority
-    // - List item
+
