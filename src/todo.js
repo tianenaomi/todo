@@ -1,38 +1,39 @@
-export const toDoController = function(){
-    let newToDo;
+export const toDoController = (function(){
 
-    function createToDo (name, priority, due, ...desc){
-        return newToDo = {  name, 
-                            priority, 
-                            due, 
-                            status: "incomplete",
-                            ...desc}    
-    }
-    
-    function updateToDoPriority(todo, newPriority){
-        return todo.priority = newPriority;
-        //watch kyle's video about single responsibiity for inspo on writing this
-    }
-
-    function completeToDo(toDo){
-        return toDo.status = "complete";
-    }
-
-    function deleteToDo(){
-        
+    function createToDo(title, desc, due, priority) {
+        return {
+            title,
+            desc,
+            due,
+            priority,
+            status: 'incomplete'
+        }
     }
 
     return {
         createToDo,
-        updateToDoPriority,
-        completeToDo,
-        getNewToDo: function(){
-            return newToDo;
-        }
     }
-}    
+
+}());    
+
+/*
+REQUIREMENTS
+DONE
+- todos will be objects that will be dynamically created
+- minimum should have a title, description, dueDate, priority
+    todo: {
+        title: title,
+        desc: desc,
+        due: due,
+        priority: priority,
+    }
+
+TO DO
+- ability to edit or delete existing todos
+
+PSEUDOCODE
 
 
 
-// let todo1 = createToDo("feed kitty", "urgent", "now");
-// console.log(todo1);
+
+*/
