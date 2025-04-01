@@ -3,21 +3,27 @@ import { toDoController } from './todo';
 export const projectController = (function(){
     let _projectList = {}; 
 
-    // function newProject(title) {
-    //     console.log("Before adding:", _projectList);
-    //     let project = {
-    //         title,
-    //         toDoList: {},
-    //         addToDo: function(title, desc, due, priority) {
-    //             // let clone = JSON.parse(JSON.stringify(project));
-    //             let newToDo = toDoController.createToDo(title, desc, due, priority);
-    //             this[toDoList.title] = newToDo;
-    //         }
-    //     }
-    //     addToProjectList(project);
-    //     return project;
-    // }
+    function newProject(title){
+        let project = newProjectShell(title);
+        project.addToDo = function(title, desc, due, priority) {
+            let cloneList = cloneObject(this.toDoList);
+            this.toDoList = cloneList;
+            let newToDo = toDoController.newToDo(title, desc, due, priority);
+            this.toDoList[title] = newToDo;
+        }
+        project.deleteToDo = function(toDo){
+            let cloneList = cloneObject(this.toDoList);
+            let cloneToDo = cloneObject(toDo);
+            delete cloneList[cloneToDo.title];
+            this.toDoList = cloneList;
+        }
+        addToProjectList(project);    
+        return project;
+    }
 
+    
+
+    // FUNCTIONS which aren't being returned ===========
     function newProjectShell(title) {
         // console.log("Before adding:", _projectList);
         let shell = {
@@ -27,37 +33,6 @@ export const projectController = (function(){
         return shell;
     }
 
-    function newProject(title){
-        let project = newProjectShell(title);
-        
-        // ISSUE must be with this function as other clones work    . I think I need to clone and replace before adding new item
-        project.addToDo = function(title, desc, due, priority) {
-                // console.log("Before cloning toDoList", this.toDoList)
-                let cloneList = cloneObject(this.toDoList);
-                // console.log(this.toDoList === cloneList);
-                this.toDoList = cloneList;
-                // console.log("After cloning toDoList", this.toDoList)
-
-                let newToDo = toDoController.createToDo(title, desc, due, priority);
-                this.toDoList[title] = newToDo;
-        }
-        //
-
-        addToProjectList(project);    
-        return project;
-        /* I THINK I KNOW WHAT THE ISSUE IS
-        When I'm console.logging I have inspecting the toDoList before it's cloned. After it's cloned I THINK I'm inspecting the old reference instead of the one that's added to the project list. so I'm comparing objects that are referencing the same VALUE but no the same reference in memory
-
-        The add to ProjectList is 
-
-        I think I need to make separate cloning functions. Maybe a clone function for the toDo and one for the projectList
-
-
-        okay yeah turns out I solved this days ago I'm relieved but fucking annoyed..
-
-        */
-    }
-    
     function addToProjectList(project) {
         let clonedProject = cloneObject(project);
         let clonedList = cloneObject(_projectList);
@@ -66,14 +41,21 @@ export const projectController = (function(){
         return _projectList = clonedList;
     }
 
+    function deleteProject(project) {
+        let clonedProject = cloneObject(project);
+        let clonedList = cloneObject(_projectList);
+        delete clonedList[clonedProject.title];
+        return _projectList = clonedList;
+    } 
+
     function cloneObject(obj){
         return JSON.parse(JSON.stringify(obj));
     }
+    //==================================================
 
     return {
-        // addToDo,
-        // addToProjectList,
         newProject,
+        deleteProject,
         getProjectList: function(){
             return _projectList;
         }
@@ -86,8 +68,6 @@ REQUIREMENTS
 - project list of todos
 - default project
 - ability to create project and assign todos to new project
-
-
 
 
 ============= PSEUDOCODE ================
