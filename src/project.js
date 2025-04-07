@@ -1,56 +1,68 @@
 import { toDoController } from './todo';
+import _ from "lodash";
 
 export const projectController = (function(){
     let _projectList = {}; 
 
-    function newProject(title){
-        let project = newProjectShell(title);
+    function newProject(projTitle){
+        let project = newProjectShell(projTitle);
         project.addToDo = function(title, desc, due, priority) {
-            let cloneList = cloneObject(this.toDoList);
+            let cloneList = _.cloneDeep(this.toDoList);
             this.toDoList = cloneList;
             let newToDo = toDoController.newToDo(title, desc, due, priority);
             this.toDoList[title] = newToDo;
+            updateProjectList(project);
         }
         project.deleteToDo = function(toDo){
-            let cloneList = cloneObject(this.toDoList);
-            let cloneToDo = cloneObject(toDo);
+            let cloneList = _.cloneDeep(this.toDoList);
+            let cloneToDo = _.cloneDeep(toDo);
             delete cloneList[cloneToDo.title];
             this.toDoList = cloneList;
+            updateProjectList(project);
         }
-        addToProjectList(project);    
+        project.editToDo = function(toDo, key, newData){
+            let cloneList = _.cloneDeep(this.toDoList);
+            let cloneToDo = _.cloneDeep(toDo);
+            // console.log(this.toDoList === cloneList);
+            if (key == "title") {
+                delete cloneList[cloneToDo.title];
+                cloneList[newData] = cloneToDo;   
+            }
+            cloneToDo[key] = newData;
+            this.toDoList = cloneList;
+            updateProjectList(project);
+            // CONSOLE LOG values appear to share references again but comparisons output as false so continuing on
+        }
+        updateProjectList(project);  
         return project;
     }
 
-    
-
     // FUNCTIONS which aren't being returned ===========
-    function newProjectShell(title) {
+    function newProjectShell(projTitle) {
         // console.log("Before adding:", _projectList);
         let shell = {
-            title,
+            projTitle,
             toDoList: {},
         }
         return shell;
     }
 
-    function addToProjectList(project) {
-        let clonedProject = cloneObject(project);
-        let clonedList = cloneObject(_projectList);
+    function updateProjectList(project) {
+        let clonedProject = _.cloneDeep(project);
+        let clonedList = _.cloneDeep(_projectList);
         //console.log(clonedProject === project):
-        clonedList[clonedProject.title] = clonedProject;
+        clonedList[clonedProject.projTitle] = clonedProject;
+        // console.log(clonedList);
         return _projectList = clonedList;
     }
 
     function deleteProject(project) {
-        let clonedProject = cloneObject(project);
-        let clonedList = cloneObject(_projectList);
+        let clonedProject = _.cloneDeep(project);
+        let clonedList = _.cloneDeep(_projectList);
         delete clonedList[clonedProject.title];
         return _projectList = clonedList;
     } 
 
-    function cloneObject(obj){
-        return JSON.parse(JSON.stringify(obj));
-    }
     //==================================================
 
     return {
@@ -83,31 +95,3 @@ CLONE object then add to projects list
     
 */
 
-/* 
-============ ATTEMPTS ===========
-
-// ATTEMPT 1 -  both projectList and toDoList seem
-
-let _projectList = {}; 
-
-function newProject(title) {
-    console.log("Before adding:", _projectList);
-    let project = {
-        title,
-        toDoList: {},
-        addToDo: function(title, desc, due, priority) {
-            let newToDo = toDoController.createToDo(title, desc, due, priority);
-            this.toDoList.title = newToDo;
-        }
-    }
-    addToProjectList(project);
-    return project;
-}
-
-function addToProjectList(project) {
-    let cloned = JSON.parse(JSON.stringify(project));
-    return _projectList.title = cloned;
-}
-
-
-*/

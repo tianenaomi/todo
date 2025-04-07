@@ -1,6 +1,31 @@
 export const toDoController = (function(){
 
-    function createToDo(title, desc, due, priority) {
+    // function newToDo(title, desc, due, priority) {
+    // //POUR MOI POUR LA PROCHAINE HEURES
+    // // ADD functionality to make status as complete
+    //     return {
+    //         title,
+    //         desc,
+    //         due,
+    //         priority,
+    //         status: 'incomplete'
+    //     }
+    // }
+
+
+    function newToDo(title, desc, due, priority){
+        let toDo = newToDoShell(title, desc, due, priority);
+        toDo.completeToDo = function(){
+            toDo.status = 'complete';
+        }
+        // toDo.editToDo = function(key, newData){
+        //     let clone = JSON.parse(JSON.stringify(toDo));
+        //     return clone[key] = newData;
+        // }
+        return toDo;
+    }
+
+    function newToDoShell(title, desc, due, priority){
         return {
             title,
             desc,
@@ -11,7 +36,7 @@ export const toDoController = (function(){
     }
 
     return {
-        createToDo,
+        newToDo,
     }
 
 }());    
@@ -33,7 +58,19 @@ TO DO
 
 PSEUDOCODE
 
+EDIT TODO
+What we know
+- the keys for each todo
+- needs to be cloned
 
+What we don't know
+- what needs to be edited
 
+editToDo(todo, key, newData){
+    SET variable for cloneToDo
+    todo.key = newData;
+
+}
+    
 
 */

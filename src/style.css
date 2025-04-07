@@ -10,6 +10,12 @@ body {
     padding: 0;
 }
 
+#header, 
+#sidebar,
+#content {
+    padding: 20px;
+}
+
 #header {
     background-color: #c43f53;
     grid-area: 1 / 2 / 2 / 5;

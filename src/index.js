@@ -2,6 +2,7 @@ import "./style.css";
 import { projectController } from "./project";
 import { toDoController } from "./todo";
 
+
 let screenController = (function(){
     let _addProject = document.createElement('button');
     let _content = document.getElementById('content');
@@ -21,15 +22,25 @@ let screenController = (function(){
 
 }());
 
-console.log(projectController.getProjectList());
-let feedCat = projectController.newProject("feed cat");
-console.log(feedCat.toDoList);
 
-// console.log("Before adding:", feedCat.toDoList);
+let feedCat = projectController.newProject("feed cat");
+console.log(projectController.getProjectList());
+console.log(feedCat.toDoList);
 feedCat.addToDo("breakfast", "wet food", "7am", "high");
-// console.log("After adding:", feedCat.toDoList);
+console.log(feedCat.toDoList);
+feedCat.addToDo("dinner", "soup", "5.30pm", "high");
+console.log(feedCat.toDoList);
+feedCat.addToDo("allDay", "kibble", "NA", "high");
+console.log(feedCat);
+// console.log(projectController.getProjectList());
+// feedCat.deleteToDo(feedCat.toDoList.breakfast);
+feedCat.editToDo(feedCat.toDoList.breakfast, 'title', 'morningTea');
 console.log(feedCat);
 console.log(projectController.getProjectList());
+// let haircut = projectController.newProject("haircut");
+// haircut.addToDo('haircut', "butterfly cut", "8 weeks", "low")
+// console.log(haircut);
+// console.log(projectController.getProjectList());
 
 
 /* 
