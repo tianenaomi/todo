@@ -11,5 +11,8 @@
   "scripts": {
     "start": "webpack serve --open --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }
