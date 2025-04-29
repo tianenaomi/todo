@@ -12,15 +12,15 @@
     </div>
 
     <div id="sidebar">
-            <!-- <ul>
-                <li><button>Project une</button></li>
+            <ul>
+                <!-- <li><button>Project une</button></li>
                 <li><button>Project deux</button></li>
-                <li><button>Project trois</button></li>
-            </ul> -->
+                <li><button>Project trois</button></li> -->
+            </ul>
     </div>
     <div id="content">
-        <!-- <ul>
-            <li>
+        <ul>
+            <!-- <li>
                 <input type="checkbox">
                 <label for="">Une item</label>
             </li>
@@ -31,8 +31,46 @@
             <li>
                 <input type="checkbox">
                 <label for="">Trois item</label>
-            </li>
-        </ul> -->
+            </li> -->
+        </ul>
     </div>
+
+    <!-- START MODALS -->
+    <div id="modalProj">
+        <form action="" id="modalProjContent">
+            <span class="closeBtn">&times;</span>
+            <p>New Project Details</p>
+            <label for="projNewTitle">Title</label>
+            <input type="text" name="projTitle" id="projNewTitle" required/>
+            <div>
+                <button type="submit" id="saveProj">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="modalToDo">
+        <form action="" id="modalToDoContent">
+            <span class="closeBtn">&times;</span>
+            <p>New To Do Details</p>
+            <div id="toDoContainer">
+
+                <label for="toDoTitle" id="toDoTitle">Title</label>
+                <input type="text" name="toDoTitle" id="toDoTitle" required/>
+
+                <label for="toDoDesc">Description</label>
+                <input type="text" name="toDoDesc" id="toDoDesc" required/>
+
+                <label for="toDoDue">Due Date</label>
+                <input type="text" name="toDoDue" id="toDoDue" required/>
+
+                <label for="toDoPriority">Priority</label>
+                <input type="text" name="toDoPriority" id="toDoPriority" required/>
+            </div>
+            <div>
+                <button type="submit" id="saveToDo">Save</button>
+            </div>
+        </form>
+    </div>
+
 </body>
 </html>
