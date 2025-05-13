@@ -2,11 +2,11 @@ import "./style.css";
 import { projectController } from "./project";
 import { toDoController } from "./todo";
 
-
 let screenController = (function(){
     let _addProject = document.createElement('button');
     let _addToDo = document.createElement('button');
-    let _closeBtns = document.querySelectorAll('.closeBtn');
+    let _closeBtnProj = document.getElementById('closeBtnProj');
+    let _closeBtnToDo = document.getElementById('closeBtnToDo');
     let _content = document.getElementById('content');
     let _contentHeader = document.createElement('h2');
     let _contentList = document.querySelector('#content > ul');
@@ -24,18 +24,15 @@ let screenController = (function(){
     let _toDoNewPriority = document.getElementById('toDoPriority');
     let _toDoNewSave = document.getElementById('saveToDo');
     
-
     _addProject.textContent = "Add Project";
     _addToDo.textContent = "Add ToDo";
     _contentHeader.textContent = "To Do List";
     _sideHeader.textContent = "Projects";
 
-
     _content.insertBefore(_contentHeader, _contentList);
     _contentHeader.appendChild(_addToDo);
     _sidebar.insertBefore(_sideHeader, _sidebarList);
     _sidebar.appendChild(_addProject);
-
 
     //EVENT Listeners
     _addProject.addEventListener('click', () => {
@@ -46,11 +43,13 @@ let screenController = (function(){
         createProjDropList();
         _modalToDo.style.display = 'block';
     });
-    _closeBtns.forEach((btn) => {
-        btn.addEventListener('click', () => {
+    _closeBtnProj.addEventListener('click', () => {
         _modalProj.style.display = 'none';
+    });
+    _closeBtnToDo.addEventListener('click', () => {
         _modalToDo.style.display = 'none';
-        });
+        let select = document.getElementById('projects');
+        select.remove();
     });
     _projNewSave.addEventListener('click', (event) => {
         event.preventDefault(); 
@@ -61,24 +60,41 @@ let screenController = (function(){
     });
     _toDoNewSave.addEventListener('click', (event) => {
         event.preventDefault();
-        
+        let projName = document.getElementById('projects').value;
+        let projList = projectController.getProjectList();
+        projList[projName].addToDo(_toDoNewTitle.value, _toDoNewDesc.value, _toDoNewDue.value, _toDoNewPriority.value);
+        displayToDoList(projList[projName]);
+        console.log(projectController.getProjectList());
+        _modalToDo.style.display = 'none';
     });
-
+    window.addEventListener('load', () => displayDefaultProj());
     //END event Listeners
 
-    function updateProjListDisp(){
-        while (_sidebarList.firstChild){
-            _sidebarList.removeChild(_sidebarList.firstChild);
-        }
-        let projList = projectController.getProjectList();
-        for(const project in projList){
-            let li = document.createElement('li');
-            let proj = document.createElement('button');
-            proj.textContent = project;
-            proj.addEventListener('click', () => displayProjectDetails(projList[project]));
-            li.appendChild(proj);
-            _sidebarList.appendChild(li);
-        }
+    function createProjDropList() {
+        // FOR prepopulating project list in addToDo modal
+        let list = Object.keys(projectController.getProjectList());
+        let container = document.getElementById('toDoContainer');
+        let firstChild = document.getElementById('titleLabel');
+        let select = document.createElement('select');
+        select.setAttribute('id', 'projects');
+        select.setAttribute('name', 'projects');
+        select.setAttribute('required', '');
+        list.forEach((title) => {
+            let project = document.createElement('option');
+            project.textContent = `${title}`;
+            project.value = `${title}`;
+            select.appendChild(project);
+        });
+        container.insertBefore(select, firstChild);
+    }
+
+    function displayDefaultProj(){
+        // ON window load
+        let feedCat = projectController.newProject("feedCat");
+        feedCat.addToDo("breakfast", "wet food", "7am", "high");
+        feedCat.addToDo("dinner", "soup", "5.30pm", "high");
+        updateProjListDisp();
+        displayProjectDetails(feedCat);
     }
 
     function displayProjectDetails(project){
@@ -96,26 +112,14 @@ let screenController = (function(){
 
     function displayToDoList(project){
         let list = project.toDoList;
-        // Add button for adding new toDo
-        // let newToDo = document.createElement('button');
-        // newToDo.textContent = "Add ToDo";
-        // newToDo.addEventListener('click', () => {
-        //     _modalToDo.style.display = 'block';
-
-        //     // POUR MOI POUR DEMAIN
-        //         // Working on this event listener in html and toDo files
-
-        //     // 
-        // });
-        // _contentList.appendChild(newToDo);
-        // console.log(list);
+        while (_contentList.firstChild){
+            _contentList.removeChild(_contentList.firstChild);
+        }
         for(const toDo in list){
-            console.log(toDo);
-            console.log(list[toDo]); 
             let li = document.createElement('li');
             let item = document.createElement('button');
             item.textContent = toDo;
-            item.addEventListener('click', () => expandToDos(li, list[toDo]));  //list[toDo] changed from list
+            item.addEventListener('click', () => expandToDos(li, list[toDo]));
             li.appendChild(item);
             _contentList.appendChild(li);
         }
@@ -151,6 +155,21 @@ let screenController = (function(){
         }
     }
 
+    function updateProjListDisp(){
+        while (_sidebarList.firstChild){
+            _sidebarList.removeChild(_sidebarList.firstChild);
+        }
+        let projList = projectController.getProjectList();
+        for(const project in projList){
+            let li = document.createElement('li');
+            let proj = document.createElement('button');
+            proj.textContent = project;
+            proj.addEventListener('click', () => displayProjectDetails(projList[project]));
+            li.appendChild(proj);
+            _sidebarList.appendChild(li);
+        }
+    }
+
     // function completeToDo(toDo){
     //     // INVOKE toDo function
 
@@ -158,31 +177,15 @@ let screenController = (function(){
     //     // Maybe remove complete button?
     // }
 
-    function displayDefaultProj(){
+    function saveProgressInStorage(){
 
     }
 
-    function createProjDropList() {
-        let list = Object.keys(projectController.getProjectList());
-        let container = document.getElementById('toDoContainer');
-        let firstChild = document.getElementById('toDoTitle');
-        let select = document.createElement('select');
-        let label = document.createElement('label');
-        select.setAttribute('id', 'projects');
-        select.setAttribute('name', 'projects');
-        select.setAttribute('required', '');
-        label.setAttribute('for', 'projects');
-        label.textContent = 'Project';
-        list.forEach((title) => {
-            console.log(title);
-            let project = document.createElement('option');
-            project.textContent = `${title}`;
-            project.value = `${title}`;
-            select.appendChild(project);
-        });
-        container.insertBefore(label, firstChild);
-        container.insertBefore(select, firstChild);
+    function checkProgressInStorage(){
+
     }
+
+
 
     /* ===== PSEUDOCODE =====
     PROJECT EXAMPLE
@@ -204,37 +207,34 @@ let screenController = (function(){
 }());
 
 
-let feedCat = projectController.newProject("feed cat");
+// let feedCat = projectController.newProject("feedCat");
 // console.log(projectController.getProjectList());
 // console.log(feedCat.toDoList);
-feedCat.addToDo("breakfast", "wet food", "7am", "high");
+// feedCat.addToDo("breakfast", "wet food", "7am", "high");
 // console.log(feedCat.toDoList);
-feedCat.addToDo("dinner", "soup", "5.30pm", "high");
+// feedCat.addToDo("dinner", "soup", "5.30pm", "high");
 // console.log(feedCat.toDoList);
 // feedCat.addToDo("allDay", "kibble", "NA", "high");
 // console.log(feedCat);
-console.log(projectController.getProjectList());
+// console.log(projectController.getProjectList());
 // feedCat.deleteToDo(feedCat.toDoList.breakfast);
 // feedCat.editToDo(feedCat.toDoList.breakfast, 'title', 'morningTea');
 // console.log(feedCat);
 // console.log(projectController.getProjectList());
-let haircut = projectController.newProject("haircut");
+// let haircut = projectController.newProject("haircut");
 // haircut.addToDo('haircut', "butterfly cut", "8 weeks", "low")
-console.log(haircut);
-console.log(projectController.getProjectList());
-let list = Object.keys(projectController.getProjectList());
-console.log(list);
+// console.log(haircut);
+// console.log(projectController.getProjectList());
+// let list = Object.keys(projectController.getProjectList());
+// console.log(list);
 
 /* 
 ============ PSEUDOCODE =============
 
 MOVING PARTS -- 
-    -- Add ToDo button should prepopulate project somehow. That data feeds the project.addToDo() arguments or something
-        -- create function to dynamically create radio buttons or drop down list?
+    -- Need way to invoke completeToDo, editToDo, 
 
-    -- Still need to create default project
-
-    -- Need way to invoke completeToDo
+    -- Required validation not working on new project modal
 
 
 */
