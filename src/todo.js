@@ -30,12 +30,35 @@ export const toDoController = (function(){
         }
     }
 
+    //  === TESTING ===
+    // function addMethodsToTask(task){
+    //     // let cloneList = _.cloneDeep(this.taskList);
+    //     // let cloneTask = _.cloneDeep(task);
+    //     // cloneTask.completeTask = completeTask();
+    //     // === 
+    //     task.deleteTask = deleteTask;
+    //     // ===
+    //     return task;
+    // }
+
+    // function example(){
+    //     console.log('kitty cats');
+    // }
+
+    // function completeTask(project, task){
+    //     //feedCat.addTaskToList("breakfast", "wet food", "7am", "high");
+    //     let cloneList = _.cloneDeep(this.taskList);
+    //     let cloneTask = _.cloneDeep(task);
+    //     cloneList[cloneTask].status = 'complete';
+    //     this.taskList = cloneList;
+    // }
     function completeTask(task){
         let cloneList = _.cloneDeep(this.taskList);
         let cloneTask = _.cloneDeep(task);
         cloneList[cloneTask].status = 'complete';
         this.taskList = cloneList;
     }
+    // === END TESTING ===
 
     function addTaskToList(title, desc, due, priority){
         let cloneList = _.cloneDeep(this.taskList);
@@ -64,6 +87,7 @@ export const toDoController = (function(){
     }
 
     return {
+        // addMethodsToTask,
         addTaskToList,
         deleteTask,
         editTask,

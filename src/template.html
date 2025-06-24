@@ -19,9 +19,9 @@
     </div>
 
     <!-- START MODALS -->
-    <div id="modalProj">
-        <form action="" id="modalProjContent">
-            <span id="closeBtnProj">&times;</span>
+    <div id="modalProj" class="modal">
+        <form action="" id="modalProjContent" class="modalContent">
+            <span id="closeBtnProj" class="closeBtn">&times;</span>
             <p>New Project Details</p>
             <label for="projNewTitle">Title</label>
             <input type="text" name="projTitle" id="projNewTitle" required/>
@@ -31,9 +31,9 @@
         </form>
     </div>
 
-    <div id="modalToDo">
-        <form action="" id="modalToDoContent">
-            <span id="closeBtnToDo">&times;</span>
+    <div id="modalToDo" class="modal">
+        <form action="" id="modalToDoContent" class="modalContent">
+            <span id="closeBtnToDo" class="closeBtn">&times;</span>
             <p>New To Do Details</p>
             <div id="toDoContainer">
                 <label for="projects" id="projectLabel">Project</label>
@@ -52,6 +52,19 @@
             </div>
             <div>
                 <button type="submit" id="saveToDo">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="modalComTask" class="modal">
+        <form action="" id="modalComTaskContent" class="modalContent">
+            <span id="closeBtnComTask" class="closeBtn">&times;</span>
+            <p>Select tasks to complete</p>
+            <div id="checkboxContainer">
+
+            </div>
+            <div>
+                <button id="saveComTask">Save</button>
             </div>
         </form>
     </div>

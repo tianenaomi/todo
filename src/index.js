@@ -4,13 +4,16 @@ import { toDoController } from "./todo";
 
 let screenController = (function(){
     let _addProject = document.createElement('button');
-    // let _addTask = document.createElement('button');
+    let _checkboxContainer = document.getElementById('checkboxContainer');
     let _closeBtnProj = document.getElementById('closeBtnProj');
     let _closeBtnTask = document.getElementById('closeBtnToDo');
+    let _closeBtnComTask = document.getElementById('closeBtnComTask');
+    let _completeTaskSave = document.getElementById('saveComTask');
     let _content = document.getElementById('content');
     let _contentHeader = document.createElement('h2');
     let _contentList = document.querySelector('#content > ul');
     let _header = document.getElementById('header');
+    let _modalComTask = document.getElementById('modalComTask');
     let _modalProj = document.getElementById('modalProj');
     let _modalTask = document.getElementById('modalToDo');
     let _projNewTitle = document.getElementById('projNewTitle');
@@ -25,12 +28,10 @@ let screenController = (function(){
     let _taskNewSave = document.getElementById('saveToDo');
     
     _addProject.textContent = "Add Project";
-    // _addTask.textContent = "Add Task";
     _contentHeader.textContent = "Task List";
     _sideHeader.textContent = "Projects";
 
     _content.insertBefore(_contentHeader, _contentList);
-    // _contentHeader.appendChild(_addTask);
     _sidebar.insertBefore(_sideHeader, _sidebarList);
     _sidebar.appendChild(_addProject);
 
@@ -38,11 +39,6 @@ let screenController = (function(){
     _addProject.addEventListener('click', () => {
         _modalProj.style.display = 'block';
     });
-    // _addTask.addEventListener('click', (event) => {
-    //     event.preventDefault();
-    //     createProjDropList();
-    //     _modalTask.style.display = 'block';
-    // });
     _closeBtnProj.addEventListener('click', () => {
         _modalProj.style.display = 'none';
     });
@@ -51,11 +47,15 @@ let screenController = (function(){
         let select = document.getElementById('projects');
         select.remove();
     });
+    _closeBtnComTask.addEventListener('click', () => {
+        _modalComTask.style.display = 'none';
+    });
     _projNewSave.addEventListener('click', (event) => {
         event.preventDefault(); 
         let newProject = projectController.newProject(_projNewTitle.value);
         projectController.addMethodsToProject(newProject);
-        projectController.updateProjectList(newProject);
+        projectController.setCurrentProj(newProject);
+        displayProjectDetails(projectController.getCurrentProj());
         updateProjListDisp();
         _projNewTitle.value = '';
         _modalProj.style.display = 'none';
@@ -66,15 +66,73 @@ let screenController = (function(){
         let projList = projectController.getProjectList();
         projList[projName].addTaskToList(_taskNewTitle.value, _taskNewDesc.value, _taskNewDue.value, _taskNewPriority.value);
         projectController.updateProjectList(projList[projName]);
-        displayTaskList(projList[projName]);
+        // REWORKING - to use set currentProj
+        projectController.setCurrentProj(projList[projName]);
+        // END reworking
+        displayTaskList(projectController.getCurrentProj());
         _modalTask.style.display = 'none';
         _taskNewTitle.value = '';
         _taskNewDesc.value = '';
         _taskNewDue.value = '';
         _taskNewPriority.value = '';
+        createMethodButtons(projectController.getCurrentProj());
+        console.log("taskNewSave list: ", projectController.getProjectList(), 
+            "taskNewSave currentProj: ", projectController.getCurrentProj());
     });
     window.addEventListener('load', () => displayDefaultProj());
     //END event Listeners
+
+    function createCheckBoxes(){
+        while(_checkboxContainer.firstChild){
+            _checkboxContainer.removeChild(_checkboxContainer.firstChild);
+        }
+        // console.log("createCheckBoxes:", project);
+        let project = projectController.getCurrentProj();
+        let list = project.taskList;
+        for (let task in list){
+            let box = document.createElement('input');
+            let label = document.createElement('label');
+            let newLine = document.createElement('br');
+            box.setAttribute('type', 'checkbox');
+            box.setAttribute('id', task);
+            box.textContent = task;
+            label.setAttribute('for', task);
+            label.textContent = task;
+            _checkboxContainer.appendChild(box);
+            _checkboxContainer.appendChild(label);
+            _checkboxContainer.appendChild(newLine);
+        }
+        // need a reset / check for existing inputs
+    }
+
+    // *** creating UI for project methods ***
+    function createMethodButtons(){
+        // console.log("argument passed to createMethod Buttons", project);
+        let project = projectController.getCurrentProj();
+        if (document.querySelector('button.methodBtn')){
+            let existingBtns = document.querySelectorAll('button.methodBtn');
+            existingBtns.forEach((button) => { 
+                button.remove();
+            })
+        }
+        for (const key in project){
+            if (typeof project[key] == 'function'){
+                let button = document.createElement('button');
+                button.textContent = key;
+                _content.insertBefore(button, _contentList);
+                button.setAttribute('class', 'methodBtn');
+                if (key == 'addTaskToList'){
+                    eventAddTaskToList(button);
+                } else if (key == 'completeTask'){
+                    eventCompleteTask(button);
+                } else if (key == 'deleteTask'){
+
+                } else if (key == 'editTask'){
+
+                }
+            }
+        }
+    }
 
     function createProjDropList() {
         // FOR prepopulating project list in addTask modal
@@ -91,10 +149,10 @@ let screenController = (function(){
             let project = document.createElement('option');
             project.textContent = `${title}`;
             project.value = `${title}`;
+            // project.setAttribute('id', `${title}`);
             select.appendChild(project);
         });
         container.insertBefore(select, firstChild);
-        // Need to add a reset here, currently adding multiple times with each modal open
     }
 
     function displayDefaultProj(){
@@ -104,12 +162,16 @@ let screenController = (function(){
         feedCat.addTaskToList("breakfast", "wet food", "7am", "high");
         feedCat.addTaskToList("dinner", "soup", "5.30pm", "high");
         projectController.updateProjectList(feedCat);
+        // REWORKING
+        projectController.setCurrentProj(feedCat);
+        // END reworking
         updateProjListDisp();
-        displayProjectDetails(feedCat);
-        console.log(projectController.getProjectList());
+        displayProjectDetails(projectController.getCurrentProj());
+        // console.log("Display default:", projectController.getProjectList());
     }
 
-    function displayProjectDetails(project){
+    function displayProjectDetails(){
+        let currentProj = projectController.getCurrentProj();
         while (_contentList.firstChild){
             _contentList.removeChild(_contentList.firstChild);
         }
@@ -117,53 +179,21 @@ let screenController = (function(){
             _header.removeChild(_header.firstChild);
         }
         let title = document.createElement('h1');
-        title.textContent = project.projTitle;
+        title.textContent = currentProj.projTitle;
         _header.appendChild(title);
-        displayTaskList(project);
-        createMethodButtons(project);
-        // Need function here to create buttons for methods
+        displayTaskList();
+        createMethodButtons();
     }
 
-    // *** creating UI for project methods ***
-    function createMethodButtons(project){
-        // RESET / remove existing display 
-        // FOR each method
-        for (const key in project){
-            if (typeof project[key] == 'function'){
-                console.log("method accessed", typeof project[key]);
-                let button = document.createElement('button');
-                button.textContent = key;
-                _content.insertBefore(button, _contentList);
-                if (key == 'addTaskToList'){
-                    button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    createProjDropList();
-                    _modalTask.style.display = 'block';
-                    });
-                } else if (key == 'completeTask'){
-                    button.addEventListener('click', (event) => {
-                       event.preventDefault();
-                        // INVOKE function call
-                        //  
-                    })
-                }
-            } else {
-                console.log("method unavailable", typeof project[key]);
-            }
-        }
-        // CREATE button
-        // SET text in button
-        // SET event listener
-        // APPEND to somewhere
-    }
-    // *** END ***
-
-    function displayTaskList(project){
-        let list = project.taskList;
+    function displayTaskList(){
+        console.log("currentProj: ", projectController.getCurrentProj());
+        let currentProj = projectController.getCurrentProj();
+        let list = currentProj.taskList;
+        console.log("displayTasks list", list);
         while (_contentList.firstChild){
             _contentList.removeChild(_contentList.firstChild);
         }
-        for(const task in list){
+        for (let task in list){ //TEST - change const to let suggested by google
             let li = document.createElement('li');
             let item = document.createElement('button');
             item.textContent = task;
@@ -173,28 +203,85 @@ let screenController = (function(){
         }
     }
 
+    function eventAddTaskToList(button){
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            createProjDropList();
+            let dropDown = document.querySelector('select');
+            let currentProj = projectController.getCurrentProj().projTitle;
+            dropDown.value = currentProj;
+            _modalTask.style.display = 'block';
+        });
+    }
+
+    function eventCompleteTask(button){ 
+        let project = projectController.getCurrentProj();
+        button.addEventListener('click', (event) => { // tested - works
+            event.preventDefault();
+            _modalComTask.style.display = 'block';
+            createCheckBoxes();
+            displayTaskList(project);
+        });
+        _completeTaskSave.addEventListener('click', (event) => {
+            console.trace("Function called");
+            event.preventDefault(); 
+            eventSaveComplete();
+        });
+    }
+
+    function eventDeleteTask(button, project){
+        button.addEventListener('click', (event) => {
+            event.preventDefault();
+            // logic to delete project or appear a modal
+        })
+    }
+
+    function eventProjBtnDisp(projBtn){
+        projBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            let projList = projectController.getProjectList();
+            for (const project in projList){
+                if (project == projBtn.textContent){
+                    projectController.setCurrentProj(projList[project]);
+                    displayProjectDetails(projList[project]);
+                }
+            }
+        });
+    }
+
+    function eventSaveComplete(){
+        // logic to update project task status
+        let project = projectController.getCurrentProj();
+        let tasks = project.taskList;
+        console.log(tasks);
+        let options = document.querySelectorAll('#checkboxContainer > input');
+        console.log("eventSaveComplete", options);
+        // LOOP through nodes
+        options.forEach((option) => {
+            console.log("option", option.checked);
+            console.log(typeof option.id);
+            if (option.checked === true){
+                console.log("This is checked", tasks[option.id]);
+                tasks[option.id].status = "complete";
+                console.log("This is updated", tasks[option.id]);
+            }
+            //update task display
+            //update project list
+        });
+        _modalComTask.style.display = 'none';
+    }
+
     function expandTasks(li, list){
         if (li.hasAttributes() == false){
             let taskUL = document.createElement('ul');
-            for(const key in list){ // ** need to review, button not rendering
-                // console.log(key)
-                // if (key === "completeTask"){
-                //     let taskLI = document.createElement('li');
-                //     let completeTask = document.createElement('button');
-                //     // add event listener that invokes completeToDo();
-                //     completeTask.addEventListener('click', () => {
-                //         console.log(list[key]);
-                //     });
-                //     completeTask.textContent = "Complete";
-                //     taskUL.appendChild(taskLI);
-                //     taskLI.appendChild(completeTask);
-                // } else if (key === "title"){
-                //     ;
-                // } else {
+            for(const key in list){
+                if (key === "title"){
+                    ;
+                } else {
                     let taskLI = document.createElement('li');
                     taskLI.textContent = `${key}: ${list[key]}`;
                     taskUL.appendChild(taskLI);
-                // }
+                }
             }
             li.appendChild(taskUL);
             li.setAttribute("class", "open");
@@ -211,68 +298,31 @@ let screenController = (function(){
         let projList = projectController.getProjectList();
         for(const project in projList){
             let li = document.createElement('li');
-            let proj = document.createElement('button');
-            proj.textContent = project;
-            proj.addEventListener('click', () => displayProjectDetails(projList[project]));
-            li.appendChild(proj);
+            let projBtn = document.createElement('button');
+            projBtn.textContent = project;
+            eventProjBtnDisp(projBtn);
+            li.appendChild(projBtn);
             _sidebarList.appendChild(li);
         }
     }
 
-    /* ===== PSEUDOCODE =====
-    PROJECT EXAMPLE
-    {feed cat (KEY):
-        VALUE {toDoList(KEY):
-            VALUE {breakfast (KEY):
-                VALUE {title (KEY): value,
-                    desc (KEY): value,
-                    due (KEY): value,
-                    priority (KEY): value,
-                    status (KEY): value,
-                    },
-            },
-        },
-    }
-
-    ===== END pseudocode ===== */
-
 }());
 
 
-// let feedCat = projectController.newProject("feedCat");
-// projectController.addMethodsToProject(feedCat);
-// console.log(projectController.getProjectList());
-// console.log(feedCat.toDoList);
-// feedCat.addTaskToList("breakfast", "wet food", "7am", "high");
-// console.log(feedCat.toDoList);
-// feedCat.addToDo("dinner", "soup", "5.30pm", "high");
-// console.log(feedCat.toDoList);
-// feedCat.addToDo("allDay", "kibble", "NA", "high");
-// console.log(feedCat);
-// console.log(projectController.getProjectList());
-// feedCat.deleteToDo(feedCat.toDoList.breakfast);
-// feedCat.editToDo(feedCat.toDoList.breakfast, 'title', 'morningTea');
-// console.log(feedCat);
-// console.log(projectController.getProjectList());
-// let haircut = projectController.newProject("haircut");
-// projectController.addMethodsToProject(haircut);
-// haircut.addTaskToList('haircut', "butterfly cut", "8 weeks", "low")
-// projectController.updateProjectList(haircut);
-// console.log("project:", haircut);
-// console.log("projectList:", projectController.getProjectList());
-// let list = Object.keys(projectController.getProjectList());
-// console.log(list);
-
 /* 
 ============ PSEUDOCODE =============
+24/06 - now debugging the complete task event
 
-MOVING PARTS -- 
-    -- Need way to invoke completeToDo, editToDo, 
+__BUG - When hitting save the event listener seems to be running 4 times? First round with stale data, then evenutally the correct data is passed and actioned. 
 
-    -- Required validation not working on new project modal
+** BEHAVIOUR - 
+1. add new project Love Rupurrt
+2. add new task x2 to Love Rupurrt
+3. complete x1 task of Love Rupurrt
+4. event firing with data from feedCat first, then runs again with Love Rupurrt data
 
-    -- SO SO SO MANY BUGS
-        -- actually too many to type - lots of bugs in new task saving
-        --
+== INVESTIGATIONS - 
+1. Currently updating instances of "project" argument or similar for projectContoller.getCurrentProj(); At the point of completing a task the current project should be updated and correct so no need to pass references and should just be able to access. 
+
 
 */

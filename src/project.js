@@ -3,8 +3,10 @@ import _ from "lodash";
 
 export const projectController = (function(){
     let _projectList = {}; 
+    // *** reworking
+    let _currentProject;
+    // *** end reworking
 
-    // ******** REWORKING *********
     function newProject(projTitle) {
         let project = {
             projTitle,
@@ -20,7 +22,7 @@ export const projectController = (function(){
         project.editTask = toDoController.editTask;
         // addMethodsToTaskList(project.taskList);
         updateProjectList(project);
-        console.log(_projectList);
+        // console.log(_projectList);
         //add to local storage here?
         return project;
     }
@@ -32,52 +34,6 @@ export const projectController = (function(){
         taskList.editTask = toDoController.editTask;
         return taskList;
     }
-
-    // ******** END reworking *********
-
-    // function newProject(projTitle){
-    //     let project = newProjectShell(projTitle);
-    //     console.log(project);
-    //     project.addToDo = function(title, desc, due, priority) {
-    //         let cloneList = _.cloneDeep(this.toDoList);
-    //         this.toDoList = cloneList;
-    //         let newToDo = toDoController.newToDo(title, desc, due, priority);
-    //         this.toDoList[title] = newToDo;
-    //         updateProjectList(project);
-    //     }
-    //     project.deleteToDo = function(toDo){
-    //         let cloneList = _.cloneDeep(this.toDoList);
-    //         let cloneToDo = _.cloneDeep(toDo);
-    //         delete cloneList[cloneToDo.title];
-    //         this.toDoList = cloneList;
-    //         updateProjectList(project);
-    //     }
-        // project.editToDo = function(toDo, key, newData){
-        //     let cloneList = _.cloneDeep(this.toDoList);
-        //     let cloneToDo = _.cloneDeep(toDo);
-        //     // console.log(this.toDoList === cloneList);
-        //     if (key == "title") {
-        //         delete cloneList[cloneToDo.title];
-        //         cloneList[newData] = cloneToDo;   
-        //     }
-        //     cloneToDo[key] = newData;
-        //     this.toDoList = cloneList;
-        //     updateProjectList(project);
-        //     // CONSOLE LOG values appear to share references again but comparisons output as false so continuing on
-        // }
-    //     updateProjectList(project);
-    //     saveToStorage(projTitle, project);  
-    //     return project;
-    // }
-
-    // FUNCTIONS which aren't being returned ===========
-    // function newProjectShell(projTitle) {
-    //     let shell = {
-    //         projTitle,
-    //         toDoList: {},
-    //     }
-    //     return shell;
-    // }
 
     function updateProjectList(project) {
         let clonedProject = _.cloneDeep(project);
@@ -111,14 +67,17 @@ export const projectController = (function(){
     //==================================================
 
     return {
-        // *** REWORKING ***
         addMethodsToProject,
-
-        // *** END reworking ***
         newProject,
         deleteProject,
         getProjectList: function(){
             return _projectList;
+        },
+        getCurrentProj: function(){
+            return _currentProject;
+        },
+        setCurrentProj: function(project){
+            _currentProject = project;
         },
         updateProjectList
     }
