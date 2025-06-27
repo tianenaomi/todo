@@ -5,6 +5,7 @@ import { toDoController } from "./todo";
 let screenController = (function(){
     let _addProject = document.createElement('button');
     let _checkboxContainer = document.getElementById('checkboxContainer');
+    let _checkboxContainerDel = document.getElementById('checkboxContainerDel');
     let _closeBtnProj = document.getElementById('closeBtnProj');
     let _closeBtnTask = document.getElementById('closeBtnToDo');
     let _closeBtnComTask = document.getElementById('closeBtnComTask');
@@ -66,9 +67,7 @@ let screenController = (function(){
         let projList = projectController.getProjectList();
         projList[projName].addTaskToList(_taskNewTitle.value, _taskNewDesc.value, _taskNewDue.value, _taskNewPriority.value);
         projectController.updateProjectList(projList[projName]);
-        // REWORKING - to use set currentProj
         projectController.setCurrentProj(projList[projName]);
-        // END reworking
         displayTaskList(projectController.getCurrentProj());
         _modalTask.style.display = 'none';
         _taskNewTitle.value = '';
@@ -76,15 +75,38 @@ let screenController = (function(){
         _taskNewDue.value = '';
         _taskNewPriority.value = '';
         createMethodButtons(projectController.getCurrentProj());
-        console.log("taskNewSave list: ", projectController.getProjectList(), 
-            "taskNewSave currentProj: ", projectController.getCurrentProj());
+        // console.log("taskNewSave list: ", projectController.getProjectList(), 
+        //     "taskNewSave currentProj: ", projectController.getCurrentProj());
     });
-    window.addEventListener('load', () => displayDefaultProj());
+    window.addEventListener('load', displayDefaultProj);
     //END event Listeners
 
     function createCheckBoxes(){
         while(_checkboxContainer.firstChild){
             _checkboxContainer.removeChild(_checkboxContainer.firstChild);
+        }
+        // console.log("createCheckBoxes:", project);
+        let project = projectController.getCurrentProj();
+        let list = project.taskList;
+        for (let task in list){
+            let box = document.createElement('input');
+            let label = document.createElement('label');
+            let newLine = document.createElement('br');
+            box.setAttribute('type', 'checkbox');
+            box.setAttribute('id', task);
+            box.textContent = task;
+            label.setAttribute('for', task);
+            label.textContent = task;
+            _checkboxContainer.appendChild(box);
+            _checkboxContainer.appendChild(label);
+            _checkboxContainer.appendChild(newLine);
+        }
+        // need a reset / check for existing inputs
+    }
+
+    function createCheckBoxesDelete(){
+        while(_checkboxContainerDel.firstChild){
+            _checkboxContainerDel.removeChild(_checkboxContainerDel.firstChild);
         }
         // console.log("createCheckBoxes:", project);
         let project = projectController.getCurrentProj();
@@ -186,10 +208,10 @@ let screenController = (function(){
     }
 
     function displayTaskList(){
-        console.log("currentProj: ", projectController.getCurrentProj());
+        // console.log("currentProj: ", projectController.getCurrentProj());
         let currentProj = projectController.getCurrentProj();
         let list = currentProj.taskList;
-        console.log("displayTasks list", list);
+        // console.log("displayTasks list", list);
         while (_contentList.firstChild){
             _contentList.removeChild(_contentList.firstChild);
         }
@@ -222,11 +244,15 @@ let screenController = (function(){
             createCheckBoxes();
             displayTaskList(project);
         });
-        _completeTaskSave.addEventListener('click', (event) => {
-            console.trace("Function called");
-            event.preventDefault(); 
-            eventSaveComplete();
-        });
+        _completeTaskSave.removeEventListener('click', handleSaveClick);
+        _completeTaskSave.addEventListener('click', handleSaveClick);
+    }
+
+    function handleSaveClick(event){
+        event.preventDefault(); 
+        console.log("target:", event.target);
+        console.log("currentTarget:", event.currentTarget);
+        eventSaveComplete();
     }
 
     function eventDeleteTask(button, project){
@@ -253,20 +279,12 @@ let screenController = (function(){
         // logic to update project task status
         let project = projectController.getCurrentProj();
         let tasks = project.taskList;
-        console.log(tasks);
         let options = document.querySelectorAll('#checkboxContainer > input');
-        console.log("eventSaveComplete", options);
-        // LOOP through nodes
         options.forEach((option) => {
-            console.log("option", option.checked);
-            console.log(typeof option.id);
             if (option.checked === true){
-                console.log("This is checked", tasks[option.id]);
                 tasks[option.id].status = "complete";
-                console.log("This is updated", tasks[option.id]);
+                projectController.updateProjectList(project);
             }
-            //update task display
-            //update project list
         });
         _modalComTask.style.display = 'none';
     }
@@ -311,7 +329,7 @@ let screenController = (function(){
 
 /* 
 ============ PSEUDOCODE =============
-24/06 - now debugging the complete task event
+24/06 and 25/06 - STILL debugging the complete task event
 
 __BUG - When hitting save the event listener seems to be running 4 times? First round with stale data, then evenutally the correct data is passed and actioned. 
 
@@ -323,6 +341,15 @@ __BUG - When hitting save the event listener seems to be running 4 times? First 
 
 == INVESTIGATIONS - 
 1. Currently updating instances of "project" argument or similar for projectContoller.getCurrentProj(); At the point of completing a task the current project should be updated and correct so no need to pass references and should just be able to access. 
+
+END OF DAY NOTES
+Bug should be resolved now. need to work on other method buttons now
+css to make buttons a different colour once task and project is complete would be nice to have
+
+Currently working on new modal and createcheckbox function
+
+^^ HA!
+Spent last pomodoro chatting with AI trying to figure out why TF this listener is being attached to the same save button over and over. Start next session here - refer to console.traces. it's being added several times but I dont' understand how because it's being removed before being added so i dunno man. Soemthing about the function chain
 
 
 */
