@@ -77,12 +77,14 @@ export const toDoController = (function(){
     function editTask(task, key, newData){
         let cloneList = _.cloneDeep(this.taskList);
         let cloneTask = _.cloneDeep(task);
-        console.log(this.taskList === cloneList);
-        if (key == "title"){
+        if (key === "title"){
             delete cloneList[cloneTask.title];
+            cloneTask.title = newData;
             cloneList[newData] = cloneTask;   
+        } else {
+            cloneTask[key] = newData;
+            cloneList[cloneTask.title] = cloneTask;
         }
-        cloneTask[key] = newData;
         this.taskList = cloneList;
     }
 

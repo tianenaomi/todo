@@ -3,9 +3,7 @@ import _ from "lodash";
 
 export const projectController = (function(){
     let _projectList = {}; 
-    // *** reworking
     let _currentProject;
-    // *** end reworking
 
     function newProject(projTitle) {
         let project = {
@@ -45,7 +43,8 @@ export const projectController = (function(){
     function deleteProject(project) {
         let clonedProject = _.cloneDeep(project);
         let clonedList = _.cloneDeep(_projectList);
-        delete clonedList[clonedProject.title];
+        delete clonedList[clonedProject.projTitle];
+        _currentProject = "";
         return _projectList = clonedList;
     } 
 

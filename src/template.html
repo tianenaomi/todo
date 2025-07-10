@@ -31,6 +31,16 @@
         </form>
     </div>
 
+    <div id="modalProjDelete" class="modal">
+        <form action="" id="modalProjDeleteContent" class="modalContent">
+            <span id="closeBtnProjDelete" class="closeBtn">&times;</span>
+            <p>Are you sure you want to delete <span id="selectProjDelete"></span></p>
+            <div>
+                <button type="button" id="saveDelProj">Yes</button>
+            </div>
+        </form>
+    </div>
+
     <div id="modalToDo" class="modal">
         <form action="" id="modalToDoContent" class="modalContent">
             <span id="closeBtnToDo" class="closeBtn">&times;</span>
@@ -69,5 +79,43 @@
         </form>
     </div>
 
+    <div id="modalDelTask" class="modal">
+        <form action="" id="modalDelTaskContent" class="modalContent">
+            <span id="closeBtnDelTask" class="closeBtn">&times;</span>
+            <p>Select tasks to delete</p>
+            <div id="checkboxContainerDel">
+
+            </div>
+            <div>
+                <button id="saveDelTask">Save</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="modalEditTask" class="modal">
+        <form action="" id="modalEditTaskContent" class="modalContent">
+            <span id="closeBtnEditTask" class="closeBtn">&times;</span>
+            <div id="editTaskContainer">
+                <label for="tasks" id="projectLabelEdit">Select task to edit</label>
+
+                <p id="firstChild">Leave fields blank if no change is required</p>
+                <label for="title" id="taskLabel">Title</label>
+                <input type="text" name="taskTitle" id="title" class="editTaskInput"/>
+
+                <label for="desc">Description</label>
+                <input type="text" name="taskDesc" id="desc" class="editTaskInput"/>
+
+                <label for="due">Due Date</label>
+                <input type="text" name="taskDue" id="due" class="editTaskInput"/>
+
+                <label for="priority">Priority</label>
+                <input type="text" name="taskPriority" id="priority" class="editTaskInput"/>
+            </div>
+            <div>
+                <button type="submit" id="editTaskSave">Save</button>
+            </div>
+        </form>
+    </div>
+`
 </body>
 </html>
