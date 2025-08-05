@@ -2,6 +2,7 @@ import "./style.css";
 import { projectController } from "./project";
 import { toDoController } from "./todo";
 import { create } from "lodash";
+import { storageController } from "./storage";
 
 let screenController = (function(){
     let _addProject = document.createElement('button');
@@ -55,7 +56,7 @@ let screenController = (function(){
     _sidebar.appendChild(_deleteProject);
 
     //EVENT Listeners
-    window.addEventListener('load', displayDefaultProj);
+    window.addEventListener('DOMContentLoaded', displayDefaultProj);
     _addProject.addEventListener('click', () => {
         _modalProj.style.display = 'block';
     });
@@ -98,6 +99,7 @@ let screenController = (function(){
         event.preventDefault(); 
         let newProject = projectController.newProject(_projNewTitle.value);
         projectController.addMethodsToProject(newProject);
+        projectController.updateProjectList(newProject);
         projectController.setCurrentProj(newProject);
         displayProjectDetails();
         updateProjListDisp();
@@ -107,6 +109,7 @@ let screenController = (function(){
         };
         _projNewTitle.value = '';
         _modalProj.style.display = 'none';
+
     });
     _taskNewSave.addEventListener('click', (event) => {
         event.preventDefault();
@@ -167,7 +170,6 @@ let screenController = (function(){
             _checkboxContainerDel.appendChild(label);
             _checkboxContainerDel.appendChild(newLine);
         }
-        // need a reset / check for existing inputs
     }
 
     function createMethodButtons(){
@@ -200,7 +202,6 @@ let screenController = (function(){
     }
 
     function createProjDropList() {
-        // FOR prepopulating project list in addTask modal
         let selectExists = document.getElementById('projects');
         if(selectExists) selectExists.remove();
         let list = Object.keys(projectController.getProjectList());
@@ -222,12 +223,20 @@ let screenController = (function(){
 
     function displayDefaultProj(){
         // ON window load
-        let feedCat = projectController.newProject("Feed Cats");
-        projectController.addMethodsToProject(feedCat);
-        feedCat.addTaskToList("Breakfast", "wet food", "7am", "high");
-        feedCat.addTaskToList("Dinner", "soup", "5.30pm", "high");
-        projectController.setCurrentProj(feedCat);
-        projectController.updateProjectList(feedCat);
+        console.log("Origin:", window.location.origin);
+        let currentProject = localStorage.getItem("currentProject");
+        if (currentProject !== null){
+            currentProject = storageController.getFromStorage("currentProject");
+            storageController.getFromStorage("projectList");
+            console.log("storage not null:", currentProject);
+        } else {
+            let feedCat = projectController.newProject("Feed Cats");
+            projectController.addMethodsToProject(feedCat);
+            feedCat.addTaskToList("Breakfast", "wet food", "7am", "high");
+            feedCat.addTaskToList("Dinner", "soup", "5.30pm", "high");
+            projectController.setCurrentProj(feedCat);
+            projectController.updateProjectList(feedCat);
+        }
         updateProjListDisp();
         displayProjectDetails();
     }
@@ -243,21 +252,17 @@ let screenController = (function(){
         let currentProj = projectController.getCurrentProj();
         let title = document.createElement('h1');
         if (_.isEmpty(projList)){
-            // console.log("testing: projList empty", projList);
-            // console.log("is currentProj also empty?", typeof currentProj);
             title.textContent = "projects list is empty";
             let info = document.createElement('p');
             info.textContent = "Click the 'Add Project' button to start";
             _sidebar.insertBefore(info, _addProject);   
         } else if (currentProj === '' && !_.isEmpty(projList)){
-            // console.log("testing else if: currentProj empty and projList not empty", currentProj, projList);
             let proj0 = Object.values(projList)[0];
             projectController.setCurrentProj(proj0);
             title.textContent = proj0.projTitle;
             _header.appendChild(title);
             displayTaskList();
         } else {
-            // console.log("testing: else. currentProj and projList not empty", currentProj, projList);
             title.textContent = currentProj.projTitle;
             _header.appendChild(title);
             displayTaskList();
@@ -293,12 +298,10 @@ let screenController = (function(){
     }
 
     function addEventCompleteTask(button){ 
-        // let project = projectController.getCurrentProj();
         button.addEventListener('click', (event) => {
             event.preventDefault();
             _modalComTask.style.display = 'block';
             createCheckBoxesComplete();
-            // displayTaskList();
         });
         _completeTaskSave.removeEventListener('click', eventSaveComplete);
         _completeTaskSave.addEventListener('click', eventSaveComplete);
@@ -309,13 +312,11 @@ let screenController = (function(){
             event.preventDefault();
             _modalDelTask.style.display = 'block';
             createCheckBoxesDelete();
-            // displayTaskList();
         });
         _deleteTaskSave.removeEventListener('click', eventSaveDelete);
         _deleteTaskSave.addEventListener('click', eventSaveDelete);
     }
 
-    // ------------------ WORKING -  EDIT TASK FUNCTIONS
     function addEventEditTask(button){
         button.addEventListener('click', (event) => {
             event.preventDefault();
@@ -332,7 +333,6 @@ let screenController = (function(){
         if(selectExists) selectExists.remove();
         let project = projectController.getCurrentProj();
         let list = Object.keys(project.taskList);
-        // console.log(list);
         let container = document.getElementById('editTaskContainer');
         let firstChild = document.getElementById('firstChild');
         let select = document.createElement('select');
@@ -368,18 +368,16 @@ let screenController = (function(){
                 task = input.value;
             }
         });
+        projectController.setCurrentProj(project);
         projectController.updateProjectList(project);
         console.log(projectController.getProjectList());
         displayTaskList();
-        // createMethodBtns();
         _editTaskTitle.value = '';
         _editTaskDesc.value = '';
         _editTaskDue.value = '';
         _editTaskPriority.value = '';
         _modalEditTask.style.display = 'none';
     }
-
-    // --------------- END working on edit functions
 
     function eventProjBtnDisp(projBtn){
         projBtn.addEventListener('click', (event) => {
@@ -395,7 +393,6 @@ let screenController = (function(){
     }
 
     function eventSaveComplete(event){  
-        // logic to update project task status
         event.preventDefault(); 
         let project = projectController.getCurrentProj();
         let tasks = project.taskList;
@@ -411,7 +408,6 @@ let screenController = (function(){
     }
 
     function eventSaveDelete(event){
-    // logic to update project task status
         event.preventDefault();
         let project = projectController.getCurrentProj();
         let tasks = project.taskList;
@@ -434,6 +430,10 @@ let screenController = (function(){
             for(const key in list){
                 if (key === "title"){
                     ;
+                } else if (key === "desc"){
+                    let taskLI = document.createElement('li');
+                    taskLI.textContent = `description: ${list[key]}`;
+                    taskUL.appendChild(taskLI);
                 } else {
                     let taskLI = document.createElement('li');
                     taskLI.textContent = `${key}: ${list[key]}`;
@@ -465,12 +465,27 @@ let screenController = (function(){
 
 }());
 
-
 /* 
 ============ PSEUDOCODE =============
-01/07
-1. editTask in toDo module needs reworking. Start with debugging there, refer to console logs
-2. once that's done I think I'm finally up to local storage
+let kitties = projectController.newProject('kitties');
+projectController.addMethodsToProject(kitties);
+kitties.addTaskToList('Feed', 'Wet food', 'Every day', 'High');
+
+Output of JSON.stringify(kitties);
+{"projTitle":"kitties",
+    "taskList":{
+        "Feed":{
+            "title":"Feed",
+            "desc":"Wet food",
+            "due":"Every day",
+            "priority":"High",
+            "status":"incomplete"
+        }
+    }
+}
+
+Tue 5 Aug - 
+
 
 */
 
@@ -478,9 +493,10 @@ let screenController = (function(){
 +++++++++++ LEARNINGS TO TAKE AWAY +++++++++++
 
 1. When opening and closing modals, be careful that you're only adding listeners once and not multiple times with each opening
-2. In this project could have streamlined the modals, use span elements in place of unique info ("Select the projects you want to <span> complete || delete <span>"). would have minimised modal html, variables, repeating functions for slightly different behaviours etc
+2. In this project could have streamlined the modals, use span elements in place of unique info ("Select the projects you want to <span> complete || delete </span>"). would have minimised modal html, variables, repeating functions for slightly different behaviours etc
 3. separate methods from objects and create function to add them to the object. This will help with local storage
 4. the 'event' argument is automatically passed to event listeners. No need to create arrow function solely for purpose of passing this argument
 5. when working with objects, easy to mistake a string as an object key when attempting to access properties dynamically
+6. string =/= JSON
 
 */
